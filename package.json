@@ -13,41 +13,17 @@
     "electron-build": "npm run build && electron-builder"
   },
   "dependencies": {
-    "better-sqlite3": "^11.0.0",
+    "@tauri-apps/api": "^2",
     "lucide-react": "^0.400.0",
-    "node-powershell": "^5.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
-    "concurrently": "^8.2.0",
-    "electron": "^30.0.0",
-    "electron-builder": "^24.0.0",
     "typescript": "^5.6.0",
-    "vite": "^6.0.0",
-    "wait-on": "^7.2.0"
-  },
-  "build": {
-    "appId": "com.sysinternals.desktop-ops-assistant",
-    "productName": "桌面运维助手",
-    "directories": {
-      "output": "dist-electron"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/**/*",
-      "node_modules/better-sqlite3/**/*"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "public/icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    }
+    "vite": "^6.0.0"
   }
 }
