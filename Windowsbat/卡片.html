@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hash计算卡片</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 40px 16px;
+      background: #f3f6f9;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        "Noto Sans SC",
+        "PingFang SC",
+        "Microsoft YaHei",
+        sans-serif;
+      color: #111827;
+    }
+
+    .page {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .hash-card {
+      width: 100%;
+      max-width: 760px;
+      padding: 34px;
+      background: #ffffff;
+      border: 1px solid #e7ecf3;
+      border-radius: 28px;
+      box-shadow:
+        0 8px 30px rgba(15, 23, 42, 0.06),
+        0 2px 8px rgba(15, 23, 42, 0.03);
+    }
+
+    .hash-card__top {
+      display: flex;
+      align-items: flex-start;
+      gap: 26px;
+    }
+
+    .hash-card__icon-box {
+      width: 132px;
+      height: 132px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      background: linear-gradient(180deg, #fff8f0 0%, #fff3e5 100%);
+      border: 1px solid #f7dfc2;
+    }
+
+    .hash-card__icon {
+      width: 64px;
+      height: 64px;
+      color: #f59e0b;
+    }
+
+    .hash-card__content {
+      flex: 1;
+      min-width: 0;
+      padding-top: 4px;
+    }
+
+    .hash-card__title {
+      margin: 0;
+      font-size: 58px;
+      line-height: 1.08;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #111827;
+    }
+
+    .hash-card__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+      font-size: 28px;
+      line-height: 1.3;
+      font-weight: 500;
+      color: #1f6fff;
+      text-decoration: none;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .hash-card__link:hover {
+      opacity: 0.9;
+      transform: translateX(2px);
+    }
+
+    .hash-card__arrow {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .hash-card__desc {
+      margin: 22px 0 0;
+      max-width: 95%;
+      font-size: 24px;
+      line-height: 1.65;
+      color: #7a8699;
+      word-break: break-word;
+    }
+
+    .hash-card__divider {
+      height: 1px;
+      margin: 34px 0 26px;
+      background: #e9edf4;
+    }
+
+    .hash-card__footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .hash-card__tag {
+      min-height: 74px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 24px;
+      border-radius: 18px;
+      border: 1px solid transparent;
+      font-size: 24px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .hash-card__tag svg {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+    }
+
+    .hash-card__tag--file {
+      color: #1967d2;
+      background: #edf4ff;
+      border-color: #d7e6ff;
+    }
+
+    .hash-card__tag--admin {
+      color: #1c8c3a;
+      background: #eff8f1;
+      border-color: #d9efdc;
+    }
+
+    @media (max-width: 680px) {
+      .hash-card {
+        padding: 24px;
+        border-radius: 22px;
+      }
+
+      .hash-card__top {
+        gap: 18px;
+      }
+
+      .hash-card__icon-box {
+        width: 96px;
+        height: 96px;
+        border-radius: 18px;
+      }
+
+      .hash-card__icon {
+        width: 50px;
+        height: 50px;
+      }
+
+      .hash-card__title {
+        font-size: 40px;
+      }
+
+      .hash-card__link {
+        margin-top: 12px;
+        font-size: 22px;
+      }
+
+      .hash-card__desc {
+        margin-top: 16px;
+        font-size: 18px;
+      }
+
+      .hash-card__tag {
+        min-height: 58px;
+        padding: 0 16px;
+        font-size: 18px;
+      }
+
+      .hash-card__tag svg {
+        width: 26px;
+        height: 26px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .hash-card__top {
+        flex-direction: column;
+      }
+
+      .hash-card__content {
+        width: 100%;
+      }
+
+      .hash-card__title {
+        font-size: 34px;
+      }
+
+      .hash-card__link {
+        font-size: 20px;
+      }
+
+      .hash-card__desc {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <article class="hash-card">
+      <div class="hash-card__top">
+        <div class="hash-card__icon-box" aria-hidden="true">
+          <svg class="hash-card__icon" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M14 2v5h5"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="m10.2 15-2.2 2 2.2 2"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="m13.8 15 2.2 2-2.2 2"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+
+        <div class="hash-card__content">
+          <h1 class="hash-card__title">Hash计算</h1>
+
+          <a class="hash-card__link" href="#">
+            <span>14_Hash计算</span>
+            <svg class="hash-card__arrow" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 6l6 6-6 6"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+
+          <p class="hash-card__desc">
+            计算文件的 MD2/MD4/MD5/SHA1/<br />
+            SHA256/SHA384/SHA512 哈希值
+          </p>
+        </div>
+      </div>
+
+      <div class="hash-card__divider"></div>
+
+      <div class="hash-card__footer">
+        <div class="hash-card__tag hash-card__tag--file">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M14 2v5h5"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M9 13h6"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 17h4"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>14_Hash计算.bat</span>
+        </div>
+
+        <div class="hash-card__tag hash-card__tag--admin">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 3 5 6v5c0 5 3.4 8.2 7 10 3.6-1.8 7-5 7-10V6l-7-3Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="m12 9 .8 1.6 1.8.3-1.3 1.3.3 1.8-1.6-.8-1.6.8.3-1.8-1.3-1.3 1.8-.3L12 9Z"
+              fill="currentColor"
+            />
+          </svg>
+          <span>管理员</span>
+        </div>
+      </div>
+    </article>
+  </main>
+</body>
+</html>

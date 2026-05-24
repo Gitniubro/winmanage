@@ -1,0 +1,31 @@
+
+[package]
+name = "desktop-ops-assistant"
+version = "1.0.0"
+description = "桌面运维助手 - 集成 Sysinternals 工具的系统运维平台"
+authors = ["伙伴神软件"]
+license = "MIT"
+repository = ""
+edition = "2021"
+rust-version = "1.84"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["image-ico"] }
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+anyhow = "1"
+sha2 = "0.10"
+hex = "0.4"
+sysinfo = "0.30"
+winreg = "0.55"
+tauri-plugin-window-state = "2"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

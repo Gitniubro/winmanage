@@ -1,0 +1,24 @@
+
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "shell:allow-open",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "binaries/*",
+          "cmd": "binaries/*",
+          "args": true,
+          "sidecar": false
+        }
+      ]
+    },
+    "sql:default",
+    "sql:allow-execute"
+  ]
+}

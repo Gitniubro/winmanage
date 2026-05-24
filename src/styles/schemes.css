@@ -1,0 +1,419 @@
+/* ===== 方案 A：经典 Windows 系统信息工具 ===== */
+[data-scheme="a"] {
+  --font-base: "SimSun", "宋体", "FangSong", "仿宋", serif;
+  --font-mono: "SimSun", "宋体", "Courier New", monospace;
+
+  --bg-app: #f0f0f0;
+  --bg-app-size: auto;
+  --bg-header: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+  --bg-footer: #f8f8f8;
+  --bg-panel: #ffffff;
+  --bg-card: #ffffff;
+  --bg-message-success: #f0fff5;
+  --bg-message-error: #fff0f0;
+
+  --border-color: #c0c0c0;
+  --border-color-light: #c0c0c0;
+  --border-color-medium: #a0a0a0;
+  --border-radius: 0px;
+  --border-radius-sm: 0px;
+  --shadow-panel: none;
+  --shadow-card: none;
+  --shadow-button: none;
+
+  --text-primary: #000;
+  --text-secondary: #555;
+  --text-label: #000;
+  --text-value: #000;
+  --text-unknown: #888;
+  --text-accent: #000080;
+  --text-code: #000080;
+
+  --panel-header-bg: #000080;
+  --panel-header-text: #ffffff;
+  --panel-header-border: #000080;
+
+  --btn-primary-bg: #000080;
+  --btn-primary-text: #ffffff;
+  --btn-primary-border: #000080;
+  --btn-secondary-bg: #f8f8f8;
+  --btn-secondary-text: #000;
+  --btn-secondary-border: #a0a0a0;
+  --btn-hover-bg: #e8e8e8;
+  --btn-hover-border: #808080;
+
+  --nav-active-bg: #000080;
+  --nav-active-text: #ffffff;
+  --nav-active-border: #000080;
+
+  --card-border-left: #000080;
+  --card-border-left-admin: #c80;
+  --card-border-left-sensitive: #a40;
+  --card-border-left-dangerous: #c00;
+
+  --input-border: #a0a0a0;
+  --input-focus-border: #000080;
+  --input-focus-shadow: 0 0 0 2px rgba(0, 0, 128, 0.15);
+
+  --accent-color: #000080;
+  --accent-icon: #000080;
+  --accent-badge-admin: #860;
+  --accent-badge-danger: #a00;
+  --accent-badge-launch: #060;
+}
+
+[data-scheme="a"] body {
+  font-family: "SimSun", "宋体", "FangSong", "仿宋", serif;
+}
+
+[data-scheme="a"] .app-header h1 {
+  color: #000080;
+  font-weight: 700;
+}
+
+[data-scheme="a"] .dashboard-heading h2,
+[data-scheme="a"] .section-toolbar h2,
+[data-scheme="a"] .section-heading h2 {
+  color: #000080;
+}
+
+[data-scheme="a"] .dashboard-card-title h3 {
+  color: #ffffff;
+}
+
+[data-scheme="a"] .dashboard-card {
+  box-shadow: none;
+  border: 1px solid #c0c0c0;
+}
+
+[data-scheme="a"] .dashboard-row {
+  min-height: 24px;
+  padding: 2px 0;
+}
+
+[data-scheme="a"] .dashboard-row span {
+  white-space: nowrap;
+  color: #000080;
+  font-weight: 700;
+}
+
+[data-scheme="a"] .dashboard-row strong {
+  color: #000;
+  font-weight: 400;
+}
+
+[data-scheme="a"] .refresh-action {
+  border: 1px solid #808080;
+  background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
+  color: #000;
+  box-shadow: none;
+}
+
+[data-scheme="a"] .app-main {
+  background: #f0f0f0;
+}
+
+[data-scheme="a"] .app-footer {
+  color: #333;
+  border-top-color: #c0c0c0;
+}
+
+[data-scheme="a"] .command-output {
+  background: #1a1a1a;
+  color: #eee;
+}
+
+/* ===== 方案 B：Windows 7 Aero 风格（默认） ===== */
+[data-scheme="b"] {
+  --font-base: "Microsoft YaHei", "微软雅黑", "PingFang SC", system-ui, sans-serif;
+  --font-mono: "Consolas", "Courier New", "Microsoft YaHei", monospace;
+
+  --bg-app: #eef2f5;
+  --bg-app-size: auto;
+  --bg-header: #ffffff;
+  --bg-footer: #f7f9fb;
+  --bg-panel: #ffffff;
+  --bg-card: #ffffff;
+  --bg-message-success: #f0f9f4;
+  --bg-message-error: #fff5f5;
+
+  --border-color: #d4e1e8;
+  --border-color-light: #e5ecf2;
+  --border-color-medium: #b9c7d3;
+  --border-radius: 6px;
+  --border-radius-sm: 4px;
+  --shadow-panel: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-button: 0 2px 8px rgba(0, 120, 212, 0.25);
+
+  --text-primary: #14202b;
+  --text-secondary: #657989;
+  --text-label: #0066cc;
+  --text-value: #111111;
+  --text-unknown: #999;
+  --text-accent: #d66f16;
+  --text-code: #176b87;
+
+  --panel-header-bg: #0078d4;
+  --panel-header-text: #ffffff;
+  --panel-header-border: #0078d4;
+
+  --btn-primary-bg: #0078d4;
+  --btn-primary-text: #ffffff;
+  --btn-primary-border: #005a9e;
+  --btn-secondary-bg: #f7f9fb;
+  --btn-secondary-text: #14202b;
+  --btn-secondary-border: #c5d3df;
+  --btn-hover-bg: #e8eef3;
+  --btn-hover-border: #9eb1c8;
+
+  --nav-active-bg: #0078d4;
+  --nav-active-text: #ffffff;
+  --nav-active-border: #0078d4;
+
+  --card-border-left: #0078d4;
+  --card-border-left-admin: #d98c26;
+  --card-border-left-sensitive: #a8552a;
+  --card-border-left-dangerous: #c93636;
+
+  --input-border: #c5d3df;
+  --input-focus-border: #0078d4;
+  --input-focus-shadow: 0 0 0 2px rgba(0, 120, 212, 0.15);
+
+  --accent-color: #0078d4;
+  --accent-icon: #d18a22;
+  --accent-badge-admin: #9d5b00;
+  --accent-badge-danger: #aa2424;
+  --accent-badge-launch: #227a55;
+}
+
+[data-scheme="b"] body {
+  font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", system-ui, sans-serif;
+}
+
+[data-scheme="b"] .app-header h1 {
+  color: #0f2636;
+}
+
+[data-scheme="b"] .dashboard-heading h2,
+[data-scheme="b"] .section-toolbar h2,
+[data-scheme="b"] .section-heading h2 {
+  color: #0f2636;
+}
+
+[data-scheme="b"] .dashboard-card-title h3 {
+  color: #ffffff;
+}
+
+[data-scheme="b"] .dashboard-card {
+  box-shadow: var(--shadow-card);
+}
+
+[data-scheme="b"] .refresh-action {
+  border: 0;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: var(--shadow-button);
+}
+
+[data-scheme="b"] .app-main {
+  background: var(--bg-app);
+}
+
+[data-scheme="b"] .app-footer {
+  color: #335268;
+  border-top-color: var(--border-color);
+}
+
+[data-scheme="b"] .command-output {
+  background: #101827;
+  color: #dce9ff;
+}
+
+/* ===== 方案 C：极简终端风格 ===== */
+[data-scheme="c"] {
+  --font-base: "Consolas", "Courier New", "SimSun", "宋体", monospace;
+  --font-mono: "Consolas", "Courier New", "SimSun", "宋体", monospace;
+
+  --bg-app: #1a1a1a;
+  --bg-app-size: auto;
+  --bg-header: #0c0c0c;
+  --bg-footer: #0c0c0c;
+  --bg-panel: #0c0c0c;
+  --bg-card: #0c0c0c;
+  --bg-message-success: #0a1a0a;
+  --bg-message-error: #1a0a0a;
+
+  --border-color: #333;
+  --border-color-light: #333;
+  --border-color-medium: #444;
+  --border-radius: 2px;
+  --border-radius-sm: 2px;
+  --shadow-panel: 0 0 8px rgba(0, 255, 0, 0.05);
+  --shadow-card: 0 0 8px rgba(0, 255, 0, 0.05);
+  --shadow-button: 0 0 12px rgba(0, 255, 0, 0.2);
+
+  --text-primary: #e0e0e0;
+  --text-secondary: #888;
+  --text-label: #0f0;
+  --text-value: #e0e0e0;
+  --text-unknown: #555;
+  --text-accent: #0f0;
+  --text-code: #0f0;
+
+  --panel-header-bg: #0a3d0a;
+  --panel-header-text: #0f0;
+  --panel-header-border: #333;
+
+  --btn-primary-bg: #0f0;
+  --btn-primary-text: #000;
+  --btn-primary-border: #0f0;
+  --btn-secondary-bg: #1a1a1a;
+  --btn-secondary-text: #e0e0e0;
+  --btn-secondary-border: #444;
+  --btn-hover-bg: #222;
+  --btn-hover-border: #0f0;
+
+  --nav-active-bg: #0f0;
+  --nav-active-text: #000;
+  --nav-active-border: #0f0;
+
+  --card-border-left: #0f0;
+  --card-border-left-admin: #cc0;
+  --card-border-left-sensitive: #c80;
+  --card-border-left-dangerous: #c00;
+
+  --input-border: #444;
+  --input-focus-border: #0f0;
+  --input-focus-shadow: 0 0 0 2px rgba(0, 255, 0, 0.15);
+
+  --accent-color: #0f0;
+  --accent-icon: #0f0;
+  --accent-badge-admin: #cc0;
+  --accent-badge-danger: #f44;
+  --accent-badge-launch: #0c0;
+}
+
+[data-scheme="c"] body {
+  font-family: "Consolas", "Courier New", "SimSun", "宋体", monospace;
+}
+
+[data-scheme="c"] .app-header {
+  background: #0c0c0c;
+  border-bottom-color: #333;
+}
+
+[data-scheme="c"] .app-header h1 {
+  color: #0f0;
+}
+
+[data-scheme="c"] .app-header p {
+  color: #888;
+}
+
+[data-scheme="c"] .app-main {
+  background: #1a1a1a;
+}
+
+[data-scheme="c"] .app-footer {
+  background: #0c0c0c;
+  border-top-color: #333;
+  color: #888;
+}
+
+[data-scheme="c"] .dashboard-heading h2,
+[data-scheme="c"] .section-toolbar h2,
+[data-scheme="c"] .section-heading h2 {
+  color: #0f0;
+}
+
+[data-scheme="c"] .dashboard-card-title h3 {
+  color: #0f0;
+}
+
+[data-scheme="c"] .dashboard-row span {
+  color: #0f0;
+}
+
+[data-scheme="c"] .dashboard-row strong {
+  color: #e0e0e0;
+}
+
+[data-scheme="c"] .refresh-action {
+  background: #0f0;
+  color: #000;
+}
+
+[data-scheme="c"] .command-output {
+  background: #0a0a0a;
+  color: #eee;
+  border: 1px solid #333;
+}
+
+[data-scheme="c"] .command-output.error {
+  color: #f88;
+}
+
+[data-scheme="c"] .tool-card-main:hover {
+  background: #1a1a1a;
+}
+
+[data-scheme="c"] .tool-info strong {
+  color: #e0e0e0;
+}
+
+[data-scheme="c"] .tool-info span {
+  color: #aaa;
+}
+
+[data-scheme="c"] .category-sidebar button {
+  color: #0f0;
+}
+
+[data-scheme="c"] .category-sidebar button:hover {
+  background: #1a1a1a;
+}
+
+[data-scheme="c"] .category-sidebar button.active {
+  background: #0f0;
+  color: #000;
+}
+
+[data-scheme="c"] .category-icon {
+  color: #f44;
+}
+
+[data-scheme="c"] .search-box {
+  background: #0c0c0c;
+  border-color: #444;
+}
+
+[data-scheme="c"] .search-box input {
+  color: #e0e0e0;
+  background: transparent;
+}
+
+[data-scheme="c"] .settings-card-header h3 {
+  color: #0f0;
+}
+
+[data-scheme="c"] .settings-desc {
+  color: #888;
+}
+
+[data-scheme="c"] .settings-current {
+  background: #1a1a1a;
+  color: #0f0;
+}
+
+[data-scheme="c"] .settings-input {
+  background: #0c0c0c;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+[data-scheme="c"] .settings-select {
+  background: #0c0c0c;
+  color: #e0e0e0;
+  border-color: #444;
+}

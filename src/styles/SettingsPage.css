@@ -1,0 +1,308 @@
+/* SettingsPage styles */
+.settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-card {
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 14px rgba(23, 32, 51, 0.05);
+}
+
+.settings-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.settings-card-header svg {
+  color: var(--accent-color);
+}
+
+.settings-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.settings-desc {
+  margin: 6px 0 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.settings-current {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: var(--bg-footer);
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  color: var(--text-label);
+}
+
+.settings-current code {
+  font-weight: 700;
+}
+
+.settings-inline-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.settings-input {
+  flex: 1;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  background: var(--bg-panel);
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: var(--input-focus-border);
+  box-shadow: var(--input-focus-shadow);
+}
+
+.settings-select {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  font-family: var(--font-base);
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  min-width: 160px;
+}
+
+.settings-select:focus {
+  outline: none;
+  border-color: var(--input-focus-border);
+  box-shadow: var(--input-focus-shadow);
+}
+
+@media (max-width: 600px) {
+  .settings-inline-form {
+    flex-direction: column;
+  }
+}
+
+/* ── Policy rules (static description) ── */
+.policy-summary {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.policy-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: var(--bg-footer);
+  border-radius: var(--border-radius-sm, 6px);
+  font-size: 13px;
+}
+.policy-rule strong {
+  white-space: nowrap;
+  color: var(--text-primary);
+  min-width: 84px;
+}
+.policy-rule span {
+  color: var(--text-secondary);
+}
+
+/* ── Tool permission management ── */
+.policy-tool-mgmt {
+  margin-top: 12px;
+  border-top: 1px solid var(--border-color-light, #e2e8f0);
+  padding-top: 12px;
+}
+.policy-mgmt-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.policy-mgmt-header strong {
+  color: var(--text-primary);
+}
+.policy-loading {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.policy-stats {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+/* ── Risk group ── */
+.policy-tool-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.policy-risk-group {
+  border: 1px solid var(--border-color-light, #e2e8f0);
+  border-radius: var(--border-radius-sm, 6px);
+  overflow: hidden;
+}
+.policy-risk-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: var(--bg-footer, #f1f5f9);
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  color: var(--text-primary);
+  transition: background 0.15s;
+}
+.policy-risk-header:hover {
+  background: var(--border-color-light, #e2e8f0);
+}
+.policy-risk-count {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.policy-expand-icon {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+}
+.policy-expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+/* ── Risk badges ── */
+.risk-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.risk-badge.risk-dangerous {
+  background: #fce4e4;
+  color: #b91c1c;
+}
+.risk-badge.risk-admin {
+  background: #fff3e0;
+  color: #b45309;
+}
+.risk-badge.risk-sensitive {
+  background: #fef9c3;
+  color: #854d0e;
+}
+.risk-badge.risk-safe {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ── Tool list inside a risk group ── */
+.policy-tool-list {
+  display: flex;
+  flex-direction: column;
+}
+.policy-tool-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 6px 44px;
+  border-top: 1px solid var(--border-color-light, #e2e8f0);
+  font-size: 13px;
+  transition: background 0.12s;
+}
+.policy-tool-item:hover {
+  background: var(--bg-footer, #f8fafc);
+}
+.policy-tool-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.policy-tool-info strong {
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+.policy-tool-info code {
+  font-size: 11px;
+  color: var(--text-label, #64748b);
+  background: var(--bg-footer, #f1f5f9);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.admin-badge-sm {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #fff3e0;
+  color: #b45309;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Toggle switch ── */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #cbd5e1;
+  border-radius: 20px;
+  transition: 0.2s;
+}
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.toggle-switch input:checked + .toggle-slider {
+  background: #2563eb;
+}
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(16px);
+}
+.toggle-switch input:focus-visible + .toggle-slider {
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}

@@ -1,0 +1,127 @@
+/* BasicInfo / dashboard styles */
+.dashboard-page {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.dashboard-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.dashboard-heading h2 {
+  margin: 0;
+  color: #0f2636;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.dashboard-heading p {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.refresh-action {
+  min-width: 82px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  border-radius: var(--border-radius-sm);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  font-weight: 800;
+  box-shadow: var(--shadow-button);
+}
+
+.refresh-action:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboard-card {
+  min-height: 250px;
+  padding: 16px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+}
+
+.dashboard-card.dense-card {
+  padding: 14px 16px;
+}
+
+.dashboard-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin: -16px -18px 12px;
+  background: var(--panel-header-bg);
+  border-bottom: 1px solid var(--panel-header-border);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.dashboard-card-title svg {
+  color: var(--panel-header-text);
+}
+
+.dashboard-card-title h3 {
+  margin: 0;
+  color: var(--panel-header-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.dashboard-card-body {
+  padding-top: 8px;
+}
+
+.dashboard-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.38fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  min-height: 32px;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf2f5;
+}
+
+.dashboard-row:last-child {
+  border-bottom: 0;
+}
+
+.dashboard-row span {
+  color: var(--text-label);
+  font-weight: 500;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.dashboard-row strong {
+  min-width: 0;
+  color: var(--text-value);
+  font-weight: 400;
+  text-align: left;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.dashboard-row .accent-value {
+  color: var(--text-value);
+  font-size: inherit;
+}

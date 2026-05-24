@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Rust/Tauri build output
+src-tauri/target/
+
+# Frontend build output
+dist/
+
+# System binaries — users download SysinternalsSuite from Microsoft
+SysinternalsSuite/
+
+# OS files
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.suo
+*.sdf
+
+# AI workspace
+.claude/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Windows shortcut
+*.lnk
