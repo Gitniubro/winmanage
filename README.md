@@ -171,8 +171,9 @@ cargo build --release
 | **数据库** | SQLite (tauri-plugin-sql) | 执行审计日志持久化 |
 | **系统信息** | sysinfo crate + PowerShell CIM/WMI | 硬件与系统数据采集 |
 | **注册表访问** | winreg crate | 读取 BIOS/主板/系统版本等注册表键值 |
-| **进程管理** | std::process::Command | 工具启动与参数传递 |
+| **进程管理** | std::process::Command + ShellExecuteExW | 工具启动、批处理管理员提权 |
 | **哈希计算** | sha2 crate | SHA-256 签名验证 |
+| **Win32 API** | windows-sys (ShellExecuteExW) | 无闪烁管理员权限启动批处理 |
 
 ---
 
@@ -311,6 +312,21 @@ Copyright (c)
 - 14 个 Windows 批处理脚本为独立编写的管理工具，涉及系统设置修改，请在了解各项操作含义后再使用。
 - 本软件按"原样"提供，不提供任何明示或暗示的保证。作者不对使用本软件造成的任何直接或间接损失承担责任。
 - 建议在使用前备份重要系统和数据。
+
+---
+
+## 📝 更新日志
+
+### v1.0.1 (2025-05-25)
+
+**修复**
+- 修复批处理执行时中间 DOS 窗口闪烁问题：改用 `ShellExecuteExW` + `runas` 直接以管理员权限启动 `.bat`，通过 `SEE_MASK_NO_CONSOLE` 标志消除中间控制台窗口
+- 修复 SQLite migration 不一致导致的首次启动崩溃：清理旧数据库并重建 schema
+- 移除未使用的 Electron 残留配置
+
+**技术**
+- 新增 `windows-sys` 依赖用于调用 `ShellExecuteExW` Win32 API
+- 优化系统信息采集的多源降级策略
 
 ---
 
