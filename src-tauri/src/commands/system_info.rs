@@ -1,15 +1,10 @@
+use crate::commands::util::command_output;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::io::Read;
-use std::process::{Command, Stdio};
-use std::thread::sleep;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH};
 use sysinfo::{Disks, System};
 use winreg::enums::{HKEY_LOCAL_MACHINE, KEY_READ};
 use winreg::RegKey;
-
-#[cfg(windows)]
-use std::os::windows::process::CommandExt;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SystemInfo {
@@ -143,7 +138,14 @@ pub fn get_system_info() -> Result<SystemInfo, String> {
     let networks = collect_network_adapters();
 
     let uptime_seconds = System::uptime();
-    let (local_ip, gateway_ip) = parse_ipconfig(&ipconfig);
+    let (mut local_ip, gateway_ip) = parse_ipconfig(&ipconfig);
+    // 回退：如果 ipconfig 没取到 IP，从 networks 列表中取第一个有效 IP
+    if !known(&local_ip) {
+        local_ip = networks.iter()
+            .find(|n| !n.ip.is_empty() && n.status == "Connected")
+            .map(|n| n.ip.clone())
+            .unwrap_or_else(unknown);
+    }
     let computer = cim_object(&cim, "ComputerSystem");
     let os = cim_object(&cim, "OperatingSystem");
 
@@ -321,54 +323,6 @@ $data | ConvertTo-Json -Compress -Depth 4
     )
     .and_then(|raw| serde_json::from_str::<Value>(&raw).ok())
     .unwrap_or(Value::Null)
-}
-
-fn command_output(program: &str, args: &[&str], timeout_ms: u64) -> Option<String> {
-    let mut command = Command::new(program);
-    command.args(args).stdout(Stdio::piped()).stderr(Stdio::null());
-    #[cfg(windows)]
-    command.creation_flags(0x08000000);
-
-    let mut child = command.spawn().ok()?;
-    let started = std::time::Instant::now();
-
-    loop {
-        match child.try_wait() {
-            Ok(Some(_)) => break,
-            Ok(None) if started.elapsed() < Duration::from_millis(timeout_ms) => {
-                sleep(Duration::from_millis(40));
-            }
-            Ok(None) => {
-                let _ = child.kill();
-                let _ = child.wait();
-                break;
-            }
-            Err(_) => return None,
-        }
-    }
-
-    let mut bytes = Vec::new();
-    child.stdout.take()?.read_to_end(&mut bytes).ok()?;
-    Some(decode_command_output(&bytes))
-}
-
-fn decode_command_output(bytes: &[u8]) -> String {
-    // Try UTF-8 first (most common case)
-    if let Ok(text) = String::from_utf8(bytes.to_vec()) {
-        return text;
-    }
-    // Fallback: UTF-16LE (PowerShell on some Windows locales)
-    let words: Vec<u16> = bytes
-        .chunks_exact(2)
-        .map(|pair| {
-            if pair.len() == 2 {
-                u16::from_le_bytes([pair[0], pair[1]])
-            } else {
-                pair[0] as u16
-            }
-        })
-        .collect();
-    String::from_utf16_lossy(&words)
 }
 
 fn reg_key(path: &str) -> Option<RegKey> {
@@ -574,7 +528,8 @@ fn webview_runtime() -> String {
 }
 
 fn last_shutdown_time() -> String {
-    command_output(
+    // 方法一：wevtutil 查询系统事件日志
+    let result = command_output(
         "wevtutil",
         &[
             "qe",
@@ -584,7 +539,7 @@ fn last_shutdown_time() -> String {
             "/rd:true",
             "/f:text",
         ],
-        2000,
+        5000,
     )
     .and_then(|raw| {
         raw.lines()
@@ -593,8 +548,25 @@ fn last_shutdown_time() -> String {
             .and_then(|line| line.split_once(':').map(|(_, value)| value.trim().to_string()))
     })
     .map(|value| format_iso_date(&value))
-    .filter(|value| known(value))
-    .unwrap_or_else(unknown)
+    .filter(|value| known(value));
+
+    // 回退：PowerShell Get-WinEvent 查询
+    result.unwrap_or_else(|| {
+        command_output(
+            "powershell",
+            &[
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "Get-WinEvent -FilterHashtable @{LogName='System'; ID=1074,6006,6008} -MaxEvents 1 -ErrorAction SilentlyContinue | ForEach-Object { $_.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss') }"
+            ],
+            5000,
+        )
+        .map(|value| value.trim().to_string())
+        .filter(|value| known(value))
+        .map(|value| format_iso_date(&value))
+        .unwrap_or_else(unknown)
+    })
 }
 
 fn day_of_year_text() -> String {
@@ -870,21 +842,4 @@ ConvertTo-Json -InputObject $result -Compress
 
 fn unknown() -> String {
     "未知".to_string()
-}
-
-#[tauri::command]
-pub fn get_font_list() -> Vec<String> {
-    let script = r#"
-Add-Type -AssemblyName PresentationCore -ErrorAction SilentlyContinue
-if (-not [Windows.Media.Fonts]::SystemFontFamilies) { exit }
-[Windows.Media.Fonts]::SystemFontFamilies | Select-Object -ExpandProperty Source | Sort-Object -Unique
-"#;
-    command_output("powershell", &["-NoProfile", "-NonInteractive", "-Command", script], 12000)
-        .map(|raw| {
-            raw.lines()
-                .map(|l| l.trim().to_string())
-                .filter(|l| !l.is_empty() && l.len() > 1 && !l.starts_with("Add-Type"))
-                .collect()
-        })
-        .unwrap_or_default()
 }

@@ -42,4 +42,3 @@ CREATE TABLE IF NOT EXISTS app_settings (
   value TEXT NOT NULL
 );
 
-INSERT OR IGNORE INTO app_settings (key, value) VALUES ('tools_root', 'e:\\下载整理\\系统工具\\SysinternalsSuite_20190716\\DesktopOpsAssistant\\SysinternalsSuite');

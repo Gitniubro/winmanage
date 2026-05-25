@@ -2,8 +2,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod commands;
-mod db;
+use desktop_ops_assistant::{commands, db};
 use tauri::Manager;
 
 fn main() {
@@ -27,7 +26,7 @@ fn main() {
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             commands::system_info::get_system_info,
-            commands::system_info::get_font_list,
+            commands::fonts::get_font_list,
             commands::tools::scan_tools,
             commands::tools::launch_tool,
             commands::tools::get_tool_catalog,

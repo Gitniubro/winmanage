@@ -3,10 +3,77 @@ use std::collections::HashMap;
 use std::io::Read;
 use std::path::PathBuf;
 use std::process::Command;
-
 use std::sync::{LazyLock, Mutex};
 use sha2::{Sha256, Digest};
 use std::fs;
+
+#[cfg(windows)]
+mod windows_shell {
+    use std::ffi::OsStr;
+    use std::iter::once;
+    use std::os::windows::ffi::OsStrExt;
+    use std::ptr;
+
+    #[repr(C)]
+    #[allow(non_snake_case)]
+    struct SHELLEXECUTEINFOW {
+        cbSize: u32,
+        fMask: u32,
+        hwnd: *mut std::ffi::c_void,
+        lpVerb: *const u16,
+        lpFile: *const u16,
+        lpParameters: *const u16,
+        lpDirectory: *const u16,
+        nShow: i32,
+        hInstApp: *mut std::ffi::c_void,
+        lpIDList: *mut std::ffi::c_void,
+        lpClass: *const u16,
+        hkeyClass: *mut std::ffi::c_void,
+        dwHotKey: u32,
+        hMonitor: *mut std::ffi::c_void,
+        hProcess: *mut std::ffi::c_void,
+    }
+
+    #[link(name = "shell32")]
+    extern "system" {
+        fn ShellExecuteExW(pExecInfo: *mut SHELLEXECUTEINFOW) -> i32;
+    }
+
+    const SEE_MASK_NOCLOSEPROCESS: u32 = 0x00000040;
+    const SEE_MASK_NO_CONSOLE: u32 = 0x00008000;
+    const SW_SHOWNORMAL: i32 = 1;
+
+    pub fn execute_as_admin(file: &str) -> Result<(), String> {
+        let file_wide: Vec<u16> = OsStr::new(file).encode_wide().chain(once(0)).collect();
+        let verb_wide: Vec<u16> = OsStr::new("runas").encode_wide().chain(once(0)).collect();
+
+        let mut sei = SHELLEXECUTEINFOW {
+            cbSize: std::mem::size_of::<SHELLEXECUTEINFOW>() as u32,
+            fMask: SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NO_CONSOLE,
+            hwnd: ptr::null_mut(),
+            lpVerb: verb_wide.as_ptr(),
+            lpFile: file_wide.as_ptr(),
+            lpParameters: ptr::null(),
+            lpDirectory: ptr::null(),
+            nShow: SW_SHOWNORMAL,
+            hInstApp: ptr::null_mut(),
+            lpIDList: ptr::null_mut(),
+            lpClass: ptr::null(),
+            hkeyClass: ptr::null_mut(),
+            dwHotKey: 0,
+            hMonitor: ptr::null_mut(),
+            hProcess: ptr::null_mut(),
+        };
+
+        unsafe {
+            let result = ShellExecuteExW(&mut sei);
+            if result == 0 {
+                return Err(format!("ShellExecuteExW failed (error: {})", std::io::Error::last_os_error()));
+            }
+        }
+        Ok(())
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Tool {
@@ -38,7 +105,32 @@ pub struct ToolUsage {
     pub notes: Option<String>,
 }
 
-const DEFAULT_TOOLS_ROOT: &str = r"e:\下载整理\系统工具\SysinternalsSuite_20190716\DesktopOpsAssistant\SysinternalsSuite";
+fn default_tools_root() -> String {
+    static CACHE: LazyLock<String> = LazyLock::new(|| {
+        if let Ok(exe_path) = std::env::current_exe() {
+            if let Some(exe_dir) = exe_path.parent() {
+                let mut dir = Some(exe_dir);
+                for _ in 0..4 {
+                    if let Some(d) = dir {
+                        let candidate = d.join("SysinternalsSuite");
+                        if candidate.is_dir() {
+                            return candidate.to_string_lossy().to_string();
+                        }
+                        dir = d.parent();
+                    }
+                }
+            }
+        }
+        if let Ok(cwd) = std::env::current_dir() {
+            let candidate = cwd.join("SysinternalsSuite");
+            if candidate.is_dir() {
+                return candidate.to_string_lossy().to_string();
+            }
+        }
+        String::new()
+    });
+    CACHE.clone()
+}
 
 // ---------- Caches ----------
 
@@ -63,7 +155,7 @@ pub(crate) fn get_tools_root_path() -> String {
         }
     }
     let path = fs::read_to_string(tools_root_file())
-        .unwrap_or_else(|_| DEFAULT_TOOLS_ROOT.to_string());
+        .unwrap_or_else(|_| default_tools_root());
     if let Ok(mut cache) = TOOLS_ROOT_CACHE.lock() {
         *cache = Some(path.clone());
     }
@@ -400,11 +492,36 @@ pub fn launch_tool(tool_id: String, args: Option<String>) -> Result<LaunchResult
         _ => Vec::new(),
     };
 
-    let child_result = if is_bat {
-        let bat_canonical = exe_canonical.to_string_lossy().to_string();
-        // Directly launch .bat via Windows shell association — clean single window, no flash
-        Command::new(&bat_canonical).spawn()
-    } else {
+    if is_bat {
+        let bat_path_str = exe_path.to_string_lossy().to_string();
+        // Use ShellExecuteExW with "runas" verb to launch .bat directly with admin rights.
+        // This avoids any intermediate console window — Windows handles the elevation natively.
+        #[cfg(windows)]
+        {
+            return match windows_shell::execute_as_admin(&bat_path_str) {
+                Ok(()) => Ok(LaunchResult {
+                    success: true,
+                    message: format!("已启动: {} (管理员权限)", tool.display_name),
+                    pid: None,
+                }),
+                Err(e) => Ok(LaunchResult {
+                    success: false,
+                    message: format!("启动失败: {} | 路径: {}", e, exe_path.display()),
+                    pid: None,
+                }),
+            };
+        }
+        #[cfg(not(windows))]
+        {
+            return Ok(LaunchResult {
+                success: false,
+                message: "批处理仅在 Windows 上支持".to_string(),
+                pid: None,
+            });
+        }
+    }
+
+    let child_result = {
         let mut cmd = Command::new(&exe_path);
         if !validated_args.is_empty() {
             cmd.args(&validated_args);
@@ -416,14 +533,14 @@ pub fn launch_tool(tool_id: String, args: Option<String>) -> Result<LaunchResult
         Ok(child) => {
             Ok(LaunchResult {
                 success: true,
-                message: format!("已启动: {}", tool.display_name),
+                message: format!("已启动: {} (PID: {})", tool.display_name, child.id()),
                 pid: Some(child.id()),
             })
         }
         Err(e) => {
             Ok(LaunchResult {
                 success: false,
-                message: format!("启动失败: {}", e),
+                message: format!("启动失败: {} | 路径: {}", e, exe_path.display()),
                 pid: None,
             })
         }
@@ -487,7 +604,7 @@ pub fn get_tool_usage(tool_id: String) -> Result<Option<ToolUsage>, String> {
 
     let paths = [
         PathBuf::from(get_tools_root_path()).join("tool_usage.json"),
-        PathBuf::from(DEFAULT_TOOLS_ROOT).join("tool_usage.json"),
+        PathBuf::from(default_tools_root()).join("tool_usage.json"),
     ];
 
     for path in &paths {
