@@ -25,6 +25,7 @@ hex = "0.4"
 sysinfo = "0.30"
 winreg = "0.55"
 tauri-plugin-window-state = "2"
+tauri-plugin-dialog = "2"
 windows-sys = { version = "0.52", features = ["Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
 
 [features]

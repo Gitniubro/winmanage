@@ -24,6 +24,9 @@ export default function SettingsPage() {
   const [toolsRoot, setToolsRoot] = useState("");
   const [inputPath, setInputPath] = useState("");
   const [saving, setSaving] = useState(false);
+  const [batRoot, setBatRoot] = useState("");
+  const [batInputPath, setBatInputPath] = useState("");
+  const [batSaving, setBatSaving] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [scheme, setScheme] = useState<Scheme>(() => {
     return (document.documentElement.getAttribute("data-scheme") as Scheme) || "b";
@@ -51,6 +54,17 @@ export default function SettingsPage() {
     } catch {
       setToolsRoot("");
       setInputPath("");
+    }
+  };
+
+  const loadBatRoot = async () => {
+    try {
+      const path = await invoke<string>("get_bat_root");
+      setBatRoot(path);
+      setBatInputPath(path);
+    } catch {
+      setBatRoot("");
+      setBatInputPath("");
     }
   };
 
@@ -90,6 +104,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadToolsRoot();
+    loadBatRoot();
     loadToolsAndPolicy();
     // invoke<string[]>("get_font_list").then(setFontList).catch(() => {});
   }, []);
@@ -140,6 +155,32 @@ export default function SettingsPage() {
     }
   };
 
+  const saveBatRoot = async () => {
+    if (!batInputPath.trim()) return;
+    setBatSaving(true);
+    setMessage(null);
+    try {
+      await invoke("set_bat_root", { path: batInputPath.trim() });
+      setBatRoot(batInputPath.trim());
+      setMessage({ ok: true, text: "批处理目录已更新，重启工具列表后生效。" });
+    } catch (err) {
+      setMessage({ ok: false, text: `保存失败: ${err}` });
+    } finally {
+      setBatSaving(false);
+    }
+  };
+
+  const pickDirectory = async (setter: (v: string) => void) => {
+    try {
+      const path = await invoke<string | null>("pick_directory");
+      if (path) {
+        setter(path);
+      }
+    } catch (err) {
+      setMessage({ ok: false, text: `选择目录失败: ${err}` });
+    }
+  };
+
   const exportHistory = async () => {
     try {
       const records = await invoke<LaunchResult[]>("get_launch_history");
@@ -184,7 +225,7 @@ export default function SettingsPage() {
         <Settings size={22} />
         <div>
           <h2>设置与策略</h2>
-          <p>配置 Sysinternals 工具目录路径、查看安全策略、导出审计数据。</p>
+          <p>配置 Sysinternals 工具目录和批处理脚本目录路径、查看安全策略、导出审计数据。</p>
         </div>
       </div>
 
@@ -221,9 +262,47 @@ export default function SettingsPage() {
               placeholder="例如：E:\SysinternalsSuite"
               className="settings-input"
             />
+            <button className="browse-button" onClick={() => pickDirectory(setInputPath)} title="浏览选择目录">
+              <FolderOpen size={16} />
+            </button>
             <button className="primary-button" onClick={saveToolsRoot} disabled={saving}>
               <Save size={16} />
               {saving ? "保存中..." : "保存"}
+            </button>
+          </div>
+        </div>
+
+        {/* 批处理目录 */}
+        <div className="settings-card">
+          <div className="settings-card-header">
+            <FolderOpen size={20} />
+            <h3>批处理目录</h3>
+          </div>
+          <p className="settings-desc">
+            设置 Windows 批处理脚本目录路径。目录包含 14 个 .bat 批处理脚本。
+          </p>
+          {batRoot ? (
+            <div className="settings-current">
+              当前路径：<code>{batRoot}</code>
+            </div>
+          ) : (
+            <div className="settings-current" style={{ color: "#aa2424" }}>
+              未检测到有效目录
+            </div>
+          )}
+          <div className="settings-inline-form">
+            <input
+              value={batInputPath}
+              onChange={(e) => setBatInputPath(e.target.value)}
+              placeholder="例如：E:\Windowsbat"
+              className="settings-input"
+            />
+            <button className="browse-button" onClick={() => pickDirectory(setBatInputPath)} title="浏览选择目录">
+              <FolderOpen size={16} />
+            </button>
+            <button className="primary-button" onClick={saveBatRoot} disabled={batSaving}>
+              <Save size={16} />
+              {batSaving ? "保存中..." : "保存"}
             </button>
           </div>
         </div>

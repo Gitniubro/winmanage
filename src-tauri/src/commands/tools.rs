@@ -132,9 +132,37 @@ fn default_tools_root() -> String {
     CACHE.clone()
 }
 
+fn default_bat_root() -> String {
+    static CACHE: LazyLock<String> = LazyLock::new(|| {
+        if let Ok(exe_path) = std::env::current_exe() {
+            if let Some(exe_dir) = exe_path.parent() {
+                let mut dir = Some(exe_dir);
+                for _ in 0..4 {
+                    if let Some(d) = dir {
+                        let candidate = d.join("Windowsbat");
+                        if candidate.is_dir() {
+                            return candidate.to_string_lossy().to_string();
+                        }
+                        dir = d.parent();
+                    }
+                }
+            }
+        }
+        if let Ok(cwd) = std::env::current_dir() {
+            let candidate = cwd.join("Windowsbat");
+            if candidate.is_dir() {
+                return candidate.to_string_lossy().to_string();
+            }
+        }
+        String::new()
+    });
+    CACHE.clone()
+}
+
 // ---------- Caches ----------
 
 static TOOLS_ROOT_CACHE: LazyLock<Mutex<Option<String>>> = LazyLock::new(|| Mutex::new(None));
+static BAT_ROOT_CACHE: LazyLock<Mutex<Option<String>>> = LazyLock::new(|| Mutex::new(None));
 static USAGE_DB_CACHE: LazyLock<Mutex<Option<HashMap<String, ToolUsage>>>> = LazyLock::new(|| Mutex::new(None));
 
 fn app_data_dir() -> PathBuf {
@@ -146,6 +174,10 @@ fn app_data_dir() -> PathBuf {
 
 fn tools_root_file() -> PathBuf {
     app_data_dir().join("tools_root.txt")
+}
+
+fn bat_root_file() -> PathBuf {
+    app_data_dir().join("bat_root.txt")
 }
 
 pub(crate) fn get_tools_root_path() -> String {
@@ -162,8 +194,25 @@ pub(crate) fn get_tools_root_path() -> String {
     path
 }
 
+pub(crate) fn get_bat_root_path() -> String {
+    if let Ok(cache) = BAT_ROOT_CACHE.lock() {
+        if let Some(ref path) = *cache {
+            return path.clone();
+        }
+    }
+    let path = fs::read_to_string(bat_root_file())
+        .unwrap_or_else(|_| default_bat_root());
+    if let Ok(mut cache) = BAT_ROOT_CACHE.lock() {
+        *cache = Some(path.clone());
+    }
+    path
+}
+
 fn invalidate_caches() {
     if let Ok(mut cache) = TOOLS_ROOT_CACHE.lock() {
+        *cache = None;
+    }
+    if let Ok(mut cache) = BAT_ROOT_CACHE.lock() {
         *cache = None;
     }
     if let Ok(mut cache) = USAGE_DB_CACHE.lock() {
@@ -343,11 +392,12 @@ pub fn scan_tools() -> Result<Vec<Tool>, String> {
 }
 
 fn scan_windowsbat_tools() -> Result<Vec<Tool>, String> {
-    let tools_root = get_tools_root_path();
-    let windowsbat_dir = PathBuf::from(&tools_root)
-        .parent()
-        .map(|p| p.join("Windowsbat"))
-        .unwrap_or_else(|| PathBuf::from("Windowsbat"));
+    let bat_root = get_bat_root_path();
+    let windowsbat_dir = if bat_root.is_empty() {
+        PathBuf::from("Windowsbat")
+    } else {
+        PathBuf::from(&bat_root)
+    };
 
     let mut bat_tools = Vec::new();
 
@@ -434,20 +484,22 @@ pub fn launch_tool(tool_id: String, args: Option<String>) -> Result<LaunchResult
     }
 
     let tools_root = get_tools_root_path();
+    let bat_root = get_bat_root_path();
     let tools_root_canonical = PathBuf::from(&tools_root)
         .canonicalize()
         .map_err(|e| format!("无法解析工具根目录: {}", e))?;
 
     // Determine actual executable path
     let (exe_path, is_bat, bat_root_canonical) = if tool.preferred_exe.ends_with(".bat") {
-        let bat_dir = PathBuf::from(&tools_root)
-            .parent()
-            .map(|p| p.join("Windowsbat"))
-            .unwrap_or_else(|| PathBuf::from("Windowsbat"));
-        let bat_root = bat_dir.canonicalize()
+        let bat_dir = if bat_root.is_empty() {
+            PathBuf::from("Windowsbat")
+        } else {
+            PathBuf::from(&bat_root)
+        };
+        let bat_root_canon = bat_dir.canonicalize()
             .map_err(|e| format!("无法解析 BAT 根目录: {}", e))?;
         let bat_path = bat_dir.join(&tool.preferred_exe);
-        (bat_path, true, Some(bat_root))
+        (bat_path, true, Some(bat_root_canon))
     } else {
         (PathBuf::from(&tools_root).join(&tool.preferred_exe), false, None)
     };
@@ -591,6 +643,44 @@ pub fn set_tools_root(path: String) -> Result<(), String> {
     fs::write(tools_root_file(), trimmed).map_err(|e| e.to_string())?;
     invalidate_caches();
     Ok(())
+}
+
+#[tauri::command]
+pub fn get_bat_root() -> Result<String, String> {
+    Ok(get_bat_root_path())
+}
+
+#[tauri::command]
+pub fn set_bat_root(path: String) -> Result<(), String> {
+    let trimmed = path.trim();
+    if trimmed.is_empty() {
+        return Err("路径不能为空".to_string());
+    }
+    let path_buf = PathBuf::from(trimmed);
+    if !path_buf.exists() {
+        return Err("路径不存在".to_string());
+    }
+    if !path_buf.is_dir() {
+        return Err("路径必须是目录".to_string());
+    }
+    let dir = app_data_dir();
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    fs::write(bat_root_file(), trimmed).map_err(|e| e.to_string())?;
+    invalidate_caches();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn pick_directory(app: tauri::AppHandle) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+    let (tx, rx) = std::sync::mpsc::channel();
+    app.dialog().file().pick_folder(move |folder| {
+        let _ = tx.send(folder.map(|p| p.to_string()));
+    });
+    match rx.recv() {
+        Ok(path) => Ok(path),
+        Err(_) => Err("选择目录被取消".to_string()),
+    }
 }
 
 #[tauri::command]

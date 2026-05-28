@@ -24,6 +24,7 @@ fn main() {
         )
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::system_info::get_system_info,
             commands::fonts::get_font_list,
@@ -33,6 +34,9 @@ fn main() {
             commands::tools::get_launch_history,
             commands::tools::get_tools_root,
             commands::tools::set_tools_root,
+            commands::tools::get_bat_root,
+            commands::tools::set_bat_root,
+            commands::tools::pick_directory,
             commands::tools::get_tool_usage,
             commands::tools::set_tool_enabled,
             commands::tools::get_security_policy,
