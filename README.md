@@ -317,6 +317,20 @@ Copyright (c)
 
 ## 📝 更新日志
 
+### v1.0.2 (2026-05-28)
+
+**新增**
+- 设置页面新增独立的「批处理目录」配置项，支持单独指定 `Windowsbat` 目录路径
+- 为「工具目录」和「批处理目录」两个配置项均添加 📁 浏览按钮，点击可打开系统文件夹选择对话框
+- 批处理工具的扫描和启动逻辑改为使用独立的 `bat_root` 路径，不再依赖 `tools_root` 向上派生
+
+**技术**
+- 新增 `tauri-plugin-dialog` 依赖，提供原生文件夹选择对话框
+- Rust 后端新增 `get_bat_root`、`set_bat_root`、`pick_directory` 三个 Tauri 命令
+- `default_bat_root` 支持从 EXE 所在目录向上查找 `Windowsbat` 文件夹
+
+---
+
 ### v1.0.1 (2025-05-25)
 
 **修复**
